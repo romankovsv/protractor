@@ -1,28 +1,52 @@
-// Protractor configuration file, see link for more information
-// https://github.com/angular/protractor/blob/master/lib/config.ts
 
-const { SpecReporter } = require('jasmine-spec-reporter');
+let SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+require('protractor/built/logger').Logger.logLevel = 1;
+const Jasmine2HtmlReporter = require('protractor-jasmine2-html-reporter');
 
 exports.config = {
-  allScriptsTimeout: 11000,
-  specs: [
-    './src/**/*.e2e-spec.ts'
-  ],
-  capabilities: {
-    'browserName': 'chrome'
-  },
-  directConnect: true,
-  baseUrl: 'http://localhost:4200/',
   framework: 'jasmine',
+  seleniumAddress: 'http://localhost:4444/wd/hub',
+  capabilities: {
+    browserName: 'chrome',
+    maxInstances: 2,
+    // shardTestFiles: true  
+  },
+  specs: ['./src/FirstTestSpec.js'
+    , './src/SecondTestSpec.js'
+  ],
+
+  SELENIUM_PROMISE_MANAGER: false,
+
+  // You could set no globals to true to avoid jQuery '$' and protractor '$'
+  // collisions on the global namespace.
+  noGlobals: false,
+
   jasmineNodeOpts: {
     showColors: true,
-    defaultTimeoutInterval: 30000,
-    print: function() {}
+    defaultTimeoutInterval: 40000,
+    isVerbose: true,
+    includeStackTrace: true,
+    print: function () {
+    }
   },
-  onPrepare() {
-    require('ts-node').register({
-      project: require('path').join(__dirname, './tsconfig.e2e.json')
-    });
-    jasmine.getEnv().addReporter(new SpecReporter({ spec: { displayStacktrace: true } }));
+
+  onPrepare: () => {
+    browser.driver.manage().window().maximize();
+    jasmine.getEnv().addReporter(new SpecReporter({
+      spec: {
+        displayStacktrace: true
+      },
+      summary: {
+        displayDuration: true
+      }
+    }));
+    jasmine.getEnv().addReporter(new Jasmine2HtmlReporter({
+      savePath: 'target/screenshots',
+      takeScreenshots: true,
+      takeScreenshotsOnlyOnFailures: true
+    })
+
+    )
   }
+
 };
